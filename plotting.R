@@ -1,4 +1,4 @@
-# awareness-plots.R
+# plotting.R
 
 ## Displays all the categorical data using bar charts; data on open-ended
 ## questions are removed from the data
