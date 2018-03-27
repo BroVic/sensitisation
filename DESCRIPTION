@@ -1,0 +1,20 @@
+Package: sensitisation
+Title: Analysis of Data from NESREA Sensitisation and Awareness Creation Activity
+Version: 0.0.0.9000
+Authors@R: person("Victor", "Ordu", email = "victor.ordu@nesrea.gov.ng", 
+    role = c("aut", "cre"))
+Description: This package contains function for exploring questionnaire data from 
+    field activities conducted for the purpose of public sensitisation and 
+    awareness creation on environmental issues.
+Depends: 
+    R (>= 3.4.3),
+    utils (>= 3.4.3)
+Imports: 
+    RSQLite (>= 2.0),
+    dplyr (>= 0.7.4),
+    ggplot2 (>= 2.2.1),
+    shiny (>= 1.0.5)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
