@@ -2,18 +2,21 @@
 #' 
 #' A Shiny application for interactive exploration of the Questionnaire Data
 #' 
+#' @note This function is a wrapper for \code{\link[shiny]{runApp}} and also
+#' provides for interactive selection of the CSV file.
+#' 
 #' @importFrom shiny runApp
-#' @importFrom utils read.csv
+#' @importFrom utils choose.files
+#' 
+#' @export
 display_charts <- function()
 {
   ## Interactively choose the data file
   fileTypes <- matrix(c('Comma Separated Values (*.csv)', '*.csv'),
                       ncol = 2L, dimnames = list("csv"))
-  file <- choose.files(caption = "Select data", multi = FALSE,
+  fileName <- choose.files(caption = "Select data", multi = FALSE,
                        filters = fileTypes)
-  ques <- read.csv(file, stringsAsFactors = FALSE)
-  ques <- discard_comments(ques)
-  runApp(chartApp(ques))
+  runApp(chartApp(file = fileName))
 }
 
 
@@ -24,8 +27,11 @@ display_charts <- function()
 
 #' @import ggplot2
 #' @import shiny
-chartApp <- function(data)
+#' @importFrom utils read.csv
+chartApp <- function(file)
 {
+  data <- read.csv(file, stringsAsFactors = FALSE)
+  
   shinyApp(
     ui =
       fluidPage(
@@ -37,7 +43,8 @@ chartApp <- function(data)
             radioButtons(
               "displayType",
               label = "Type of Display",
-              choices = c("dataTable", "barChart"),
+              choiceValues = list("dataTable", "barChart"),
+              choiceNames = list("Data Table", 'Bar Chart'),
               selected = NULL
             ),
             
@@ -48,28 +55,64 @@ chartApp <- function(data)
                           choices = colnames(data))
             )
           ),
-          mainPanel(plotOutput("barChart"))
+          mainPanel(
+            conditionalPanel(
+              "input.displayType === 'barChart'",
+              plotOutput("barChart")),
+            
+            conditionalPanel(
+              "input.displayType === 'dataTable'",
+              tableOutput("dataTable"))
+            )
         )
       ),
     
     server = function(input, output) {
       
-      if (identical(input$displayType, "barChart")) {
-        output$barChart <- renderPlot({
-          gg <- ggplot(data, aes_string(input$chart)) +
+      dataInput <- reactive({
+        
+        if (input$displayType == "barChart") {
+          data <- discard_comments(data)
+        }
+        
+        data
+      })
+      
+      output$barChart <- renderPlot({
+        if (input$displayType == "barChart") {
+          df <- dataInput()
+          gg <- ggplot(df, aes_string(input$chart)) +
             geom_bar()
-          gg
-        })
-      }
-      else if (identical(input$displayType, "dataTable")) {
-        colnames(data) <- c("facility", "date", "lga", "state", "zone",
-                            "staff.no", "respondent", "respondent.role",
-                            "waste.type", "cleaning.time",
-                            "know.health.impact", "toilet", "power.source",
-                            "gen.emission", "gen.noise", "other.noise",
-                            "waste.sorting")
-        output$table <- renderDataTable(data)
-      }
+          print(gg)
+        }
+      })
+      
+      output$dataTable <- renderTable({
+        if (input$displayType == "dataTable") {
+          df <- dataInput()
+          colnames(df) <-
+            c(
+              "facility",
+              "date",
+              "lga",
+              "state",
+              "zone",
+              "staff.no",
+              "respondent",
+              "respondent.role",
+              "waste.type",
+              "cleaning.time",
+              "know.health.impact",
+              "toilet",
+              "power.source",
+              "gen.emission",
+              "gen.noise",
+              "other.noise",
+              "waste.sorting"
+            )
+          df
+        }
+      })
     }
   )
 }

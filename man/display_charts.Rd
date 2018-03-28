@@ -9,3 +9,7 @@ display_charts()
 \description{
 A Shiny application for interactive exploration of the Questionnaire Data
 }
+\note{
+This function is a wrapper for \code{\link[shiny]{runApp}} and also
+provides for interactive selection of the CSV file.
+}
