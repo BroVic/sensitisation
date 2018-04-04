@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-sensitisation
-=============
+sensitisation [![Travis-CI Build Status](https://travis-ci.org/BroVic/sensitisation.svg?branch=master)](https://travis-ci.org/BroVic/sensitisation)
+===================================================================================================================================================
 
 R Package for the Analysis of Questionnaire Data from Routine Sensitisation and Awareness Creation Activities
 
