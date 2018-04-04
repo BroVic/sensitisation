@@ -4,7 +4,10 @@
 \alias{display_charts}
 \title{Display Charts Interactively}
 \usage{
-display_charts()
+display_charts(filename)
+}
+\arguments{
+\item{filename}{A CSV file containing the data}
 }
 \description{
 A Shiny application for interactive exploration of the Questionnaire Data

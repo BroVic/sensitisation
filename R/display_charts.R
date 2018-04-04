@@ -5,20 +5,16 @@
 #' @note This function is a wrapper for \code{\link[shiny]{runApp}} and also
 #' provides for interactive selection of the CSV file.
 #' 
+#' @param filename A CSV file containing the data
+#' 
 #' @importFrom shiny runApp
-#' @importFrom utils choose.files
 #' 
 #' @export
-display_charts <- function()
+display_charts <- function(filename)
 {
-  ## Interactively choose the data file
-  fileTypes <- matrix(c('Comma Separated Values (*.csv)', '*.csv'),
-                      ncol = 2L, dimnames = list("csv"))
-  if (identical(.Platform$OS.type, "windows")) {
-    fileName <- choose.files(caption = "Select data", multi = FALSE,
-                       filters = fileTypes)
-  } else { stop("This function only works on Windows.") }
-  runApp(chartApp(file = fileName))
+  if (!endsWith(tolower(filename), ".csv"))
+      stop("Expected a '.csv' file.")
+  runApp(chartApp(file = filename))
 }
 
 
