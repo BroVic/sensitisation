@@ -82,7 +82,7 @@ chartApp <- function(file)
         if (input$displayType == "barChart") {
           df <- dataInput()
           gg <- ggplot(df, aes_string(input$chart)) +
-            geom_bar()
+            geom_bar(aes_string(fill = input$chart))
           print(gg)
         }
       })
