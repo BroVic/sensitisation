@@ -14,8 +14,10 @@ display_charts <- function()
   ## Interactively choose the data file
   fileTypes <- matrix(c('Comma Separated Values (*.csv)', '*.csv'),
                       ncol = 2L, dimnames = list("csv"))
-  fileName <- choose.files(caption = "Select data", multi = FALSE,
+  if (identical(.Platform$OS.type, "windows")) {
+    fileName <- choose.files(caption = "Select data", multi = FALSE,
                        filters = fileTypes)
+  } else { stop("This function only works on Windows.") }
   runApp(chartApp(file = fileName))
 }
 
