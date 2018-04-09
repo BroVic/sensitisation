@@ -10,7 +10,7 @@
 #' @importFrom shiny runApp
 #' 
 #' @export
-display_charts <- function(filename)
+display_data <- function(filename)
 {
   if (!endsWith(tolower(filename), ".csv"))
       stop("Expected a '.csv' file.")
@@ -28,8 +28,30 @@ display_charts <- function(filename)
 #' @importFrom utils read.csv
 chartApp <- function(file)
 {
+  varNames <- c(
+    "facility",
+    "date",
+    "lga",
+    "state",
+    "zone",
+    "staff.no",
+    "respondent",
+    "respondent.role",
+    "waste.type",
+    "cleaning.time",
+    "know.health.impact",
+    "toilet",
+    "power.source",
+    "gen.emission",
+    "gen.noise",
+    "other.noise",
+    "waste.sorting"
+  )
   data <- read.csv(file, stringsAsFactors = FALSE)
-  
+  if (!identical(colnames(data), varNames))
+    stop(paste("The variables in",
+               sQuote(file),
+               "do not match the expected structure."))
   shinyApp(
     ui =
       fluidPage(
@@ -88,26 +110,7 @@ chartApp <- function(file)
       output$dataTable <- renderTable({
         if (input$displayType == "dataTable") {
           df <- dataInput()
-          colnames(df) <-
-            c(
-              "facility",
-              "date",
-              "lga",
-              "state",
-              "zone",
-              "staff.no",
-              "respondent",
-              "respondent.role",
-              "waste.type",
-              "cleaning.time",
-              "know.health.impact",
-              "toilet",
-              "power.source",
-              "gen.emission",
-              "gen.noise",
-              "other.noise",
-              "waste.sorting"
-            )
+          colnames(df) <- varNames
           df
         }
       })
