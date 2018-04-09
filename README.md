@@ -19,14 +19,14 @@ New users should note that it may be necessary to first install `devtools` with 
 How to Use
 ----------
 
-This package launches a *[Shiny](https://shiny.rstudio.com/)* application, which is useful for interactive exploratory data analysis. To view the app, simply pass the path to the **CSV** file as an argument to `display_charts()`
+This package launches a *[Shiny](https://shiny.rstudio.com/)* application, which is useful for interactive exploratory data analysis. To view the app, simply pass the path to the **CSV** file as an argument to `display_data()`
 
 ``` r
 library(sensitisation)
-display_charts("path/to/csv/file")
+display_data("path/to/csv/file")
 ```
 
 Special notice
 --------------
 
-This package is designed for in-house datasets containing specific fields. You are however welcome to use the source code for other projects.
+This package is designed for in-house datasets containing specific fields and its functions will need to be modified prior to use on generic data.
