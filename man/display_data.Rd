@@ -2,17 +2,18 @@
 % Please edit documentation in R/display_data.R
 \name{display_data}
 \alias{display_data}
-\title{Display Charts Interactively}
+\title{Display Data Interactively}
 \usage{
 display_data(filename)
 }
 \arguments{
-\item{filename}{A CSV file containing the data}
+\item{filename}{A comma-separated values (CSV) file containing the data.}
 }
 \description{
-A Shiny application for interactive exploration of the Questionnaire Data
+A \emph{Shiny} application for the interactive display and exploration of
+the questionnaire data.
 }
 \note{
-This function is a wrapper for \code{\link[shiny]{runApp}} and also
-provides for interactive selection of the CSV file.
+This function is a wrapper for \code{\link[shiny]{runApp}}. Also, the
+function works only with a dataset that has a specific set of variables.
 }

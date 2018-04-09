@@ -1,11 +1,12 @@
-#' Display Charts Interactively
+#' Display Data Interactively
 #' 
-#' A Shiny application for interactive exploration of the Questionnaire Data
+#' A \emph{Shiny} application for the interactive display and exploration of
+#' the questionnaire data.
 #' 
-#' @note This function is a wrapper for \code{\link[shiny]{runApp}} and also
-#' provides for interactive selection of the CSV file.
+#' @note This function is a wrapper for \code{\link[shiny]{runApp}}. Also, the
+#' function works only with a dataset that has a specific set of variables.
 #' 
-#' @param filename A CSV file containing the data
+#' @param filename A comma-separated values (CSV) file containing the data.
 #' 
 #' @importFrom shiny runApp
 #' 
