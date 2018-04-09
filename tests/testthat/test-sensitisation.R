@@ -12,7 +12,7 @@ test_that("Improper data input is detected", {
   expect_error(display_data("genuine-but-wrong.xlsx"))
 })
 
-test_that('imported data has correct structure', {
+test_that('imported data has the correct structure', {
   expect_true(file.exists('../test-dat.csv'), info = "Test file is missing")
   expect_error(chartApp('../test-dat.csv'))
 })
