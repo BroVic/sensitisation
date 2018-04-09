@@ -1,25 +1,30 @@
 # plotting.R
 
 #' Display the categorical data using bar charts
-#' data on open-ended questions are removed from the data
 #' 
 #' @param file A path to text file containing data in CSV format
 #' @param data A R object of class \code{data.frame} containing questionnaire 
 #' data
 #' 
+#' @details Either one of \code{file} or \code{data} should be used. if both are
+#' provided, then \code{file} is used.
+#' 
 #' @return The function does not return a value but displays bar charts
+#' 
 #' @note This function is designed for a specific data set, not for general use.
+#' Responses to open-ended questions are filtered out from the analysis.
 #' 
 #' @import ggplot2
 #' @importFrom tools toTitleCase
 #' 
 #' @export
-show_barchart_all <- function(file = NULL, data = NULL)
+show_all_barcharts <- function(file = NULL, data = NULL)
 {
   if (!is.null(file)) {
     data <- read.csv(file, stringsAsFactors = FALSE)
-  } else data
-  data <- discard_comments(data)
+  } else if (!is.null(data)) {
+    data <- discard_comments(data)
+  } else stop("Both 'file' and 'data' were NULL.")
   gglist <- lapply(colnames(data), function(var) {
     tit <- paste(strsplit(var, split = "\\.")[[1]], collapse = " ")
     ggplot(data, aes_string(var)) +
