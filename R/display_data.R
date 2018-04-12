@@ -78,8 +78,7 @@ chartApp <- function(file)
       
       output$barChart <- renderPlot({
         if (input$displayType == "barChart") {
-          df <- dataInput()
-          gg <- ggplot(df) +
+          gg <- ggplot(dataInput()) +
             aes_string(input$chart) +
             geom_bar(aes_string(fill = input$chart)) +
             theme(axis.text.x = element_blank())
