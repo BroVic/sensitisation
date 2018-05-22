@@ -29,7 +29,8 @@ display_data <- function(filename)
 #' @importFrom utils read.csv
 chartApp <- function(file)
 {
-  data <- read.csv(file, stringsAsFactors = FALSE)
+  dfImport <- read.csv(file, stringsAsFactors = TRUE)
+  
   shinyApp(
     ui =
       fluidPage(
@@ -37,7 +38,6 @@ chartApp <- function(file)
         
         sidebarLayout(
           sidebarPanel(
-            
             radioButtons(
               "displayType",
               label = "Type of Display",
@@ -50,68 +50,88 @@ chartApp <- function(file)
               "input.displayType === 'barChart'",
               selectInput("chart",
                           label = "Question",
-                          choices = colnames(data))
+                          choices = colnames(dfImport))
             )
           ),
+          
           mainPanel(
-            conditionalPanel(
-              "input.displayType === 'barChart'",
-              plotOutput("barChart")),
+            conditionalPanel("input.displayType === 'barChart'",
+                             plotOutput("barChart")),
+            
             
             conditionalPanel(
               "input.displayType === 'dataTable'",
-              tableOutput("dataTable"))
+              tableOutput("dataTable")
             )
+          )
         )
       ),
     
-    server = function(input, output) {
+    server = function(input, output, session) {
+      dataInput <- reactive(dfImport)
       
-      dataInput <- reactive({
-        
-        if (input$displayType == "barChart") {
-          data <- discard_comments(data)
-        }
-        
-        data
-      })
-      
+      ## This code block is for displaying the bar chart
       output$barChart <- renderPlot({
         if (input$displayType == "barChart") {
-          gg <- ggplot(dataInput()) +
-            aes_string(input$chart) +
-            geom_bar(aes_string(fill = input$chart)) +
+          
+          ## Remove responses that are only comments
+          ## since they are not categorical variables
+          plotDf <- discard_comments(dataInput())
+          
+          ## Update the select input widget
+          observe(updateSelectInput(
+            session,
+            "chart",
+            label = "Question",
+            choices = colnames(plotDf)
+          ))
+          
+          ## Sort the data so that we can plot bars
+          ## in order of decreasing frequency
+          plotDf <-
+            within(plotDf,
+                   plotDf[[input$chart]] <-
+                     factor(plotDf[[input$chart]],
+                            levels = names(sort(
+                              table(plotDf[[input$chart]]), decreasing = TRUE
+                            ))))
+          
+          ## Draw the chart
+          gg <- ggplot(plotDf, aes_string(input$chart)) +
+            geom_bar() +
             theme(axis.text.x = element_blank())
           print(gg)
         }
       })
       
+      ## This code block is for displaying the data table
       output$dataTable <- renderTable({
         if (input$displayType == "dataTable") {
-          df <- dataInput()
-          colnames(df) <-
+          tableDf <- dataInput()
+          colnames(tableDf) <-
             c(
-            "facility",
-            "date",
-            "lga",
-            "state",
-            "zone",
-            "staff.no",
-            "respondent",
-            "respondent.role",
-            "waste.type",
-            "cleaning.time",
-            "know.health.impact",
-            "toilet",
-            "power.source",
-            "gen.emission",
-            "gen.noise",
-            "other.noise",
-            "waste.sorting"
-          )
-          df
+              "facility",
+              "date",
+              "lga",
+              "state",
+              "zone",
+              "staff.no",
+              "respondent",
+              "respondent.role",
+              "waste.type",
+              "cleaning.time",
+              "know.health.impact",
+              "toilet",
+              "power.source",
+              "gen.emission",
+              "gen.noise",
+              "other.noise",
+              "waste.sorting"
+            )
+          tableDf
         }
       })
+      
     }
   )
 }
