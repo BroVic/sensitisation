@@ -68,7 +68,19 @@ chartApp <- function(file)
       ),
     
     server = function(input, output, session) {
-      dataInput <- reactive(dfImport)
+      dataInput <- reactive({
+        
+        ## Reorder response categories in descending order
+        ## TODO: Add a control
+        dfImport[[input$chart]] <-
+          with(dfImport,
+               dfImport[[input$chart]] <-
+                 factor(dfImport[[input$chart]],
+                        levels = names(sort(
+                          table(dfImport[[input$chart]]), decreasing = TRUE
+                        ))))
+        dfImport
+      })
       
       ## This code block is for displaying the bar chart
       output$barChart <- renderPlot({
@@ -79,28 +91,18 @@ chartApp <- function(file)
           plotDf <- discard_comments(dataInput())
           
           ## Update the select input widget
-          observe(updateSelectInput(
-            session,
-            "chart",
-            label = "Question",
-            choices = colnames(plotDf)
-          ))
+          # observe(updateSelectInput(
+          #   session,
+          #   "chart",
+          #   label = "Question",
+          #   choices = colnames(plotDf)
+          # ))
           
-          ## Sort the data so that we can plot bars
-          ## in order of decreasing frequency
-          plotDf <-
-            within(plotDf,
-                   plotDf[[input$chart]] <-
-                     factor(plotDf[[input$chart]],
-                            levels = names(sort(
-                              table(plotDf[[input$chart]]), decreasing = TRUE
-                            ))))
+          
           
           ## Draw the chart
-          gg <- ggplot(plotDf) +
-            aes_string(input$chart) +
-            geom_bar() +
-            theme(axis.text.x = element_blank())
+          gg <- ggplot(plotDf, aes_string(input$chart)) +
+            geom_bar()
           print(gg)
         }
       })
