@@ -97,7 +97,8 @@ chartApp <- function(file)
                             ))))
           
           ## Draw the chart
-          gg <- ggplot(plotDf, aes_string(input$chart)) +
+          gg <- ggplot(plotDf) +
+            aes_string(input$chart) +
             geom_bar() +
             theme(axis.text.x = element_blank())
           print(gg)
