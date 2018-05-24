@@ -1,5 +1,7 @@
-# test-sensitisation.R
+# test-sensitisation.
 
+
+# ============================
 context("Interactive display")
 
 test_that("Improper data input is detected", {
@@ -16,11 +18,50 @@ test_that('imported data has the correct structure', {
   expect_true(file.exists('../test-dat.csv'))
   # expect_error(chartApp('../test-dat.csv'))
 })
+# ---
 
 
+# ===========================
 context("Bar Chart Plotting")
 
 test_that("open ended questions are filtered out", {
   expect_error(discard_comments(matrix(1:12)))
   expect_error(discard_comments(list(a = 1:10, b = LETTERS[1:10])))
 })
+# ---
+
+# =================================
+context("Data frame preprocessing")
+
+test_that("Factors can become ordered", {
+  set.seed(123)
+  tdf <-
+    data.frame(
+      How.frequently.is.cleaning.done. = factor(sample(c(
+        "Daily", "Twice daily"
+      ), 260, replace = TRUE)),
+      How.often.is.waste.evacuated. = factor(sample(
+        c(
+          "Twice a day",
+          "Daily",
+          "Twice a week",
+          "At least twice a week",
+          "not sure"
+        ),
+        260,
+        replace = TRUE
+      )),
+      Another.long.name = rep(letters, 10)
+    )
+  tdf <- .prepareDataframe(tdf)
+  
+  expect_error(.prepareDataframe(1:10))
+  expect_is(tdf, "data.frame")
+  expect_is(tdf[[1]], "factor")
+  expect_is(tdf[[2]], "factor")
+  expect_is(tdf[[3]], "factor")
+  expect_true(is.ordered(tdf[[1]]))
+  expect_true(is.ordered(tdf[[2]]))
+  expect_false(is.ordered(tdf[[3]]))
+})
+# ----------------------------------------------
