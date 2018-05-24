@@ -15,7 +15,9 @@ display_data <- function(filename)
 {
   if (!endsWith(tolower(filename), ".csv"))
       stop("Expected a '.csv' file.")
-  runApp(chartApp(file = filename))
+  dat <- read.csv(filename, stringsAsFactors = TRUE)
+  dat <- .prepareDataframe(dat)
+  runApp(chartApp(dat))
 }
 
 
@@ -27,10 +29,8 @@ display_data <- function(filename)
 #' @import ggplot2
 #' @import shiny
 #' @importFrom utils read.csv
-chartApp <- function(file)
+chartApp <- function(dfImport)
 {
-  dfImport <- read.csv(file, stringsAsFactors = TRUE)
-  
   shinyApp(
     ui =
       fluidPage(
@@ -61,7 +61,7 @@ chartApp <- function(file)
             
             conditionalPanel(
               "input.displayType === 'dataTable'",
-              tableOutput("dataTable")
+              dataTableOutput("dataTable")
             )
           )
         )
@@ -69,16 +69,17 @@ chartApp <- function(file)
     
     server = function(input, output, session) {
       dataInput <- reactive({
-        
-        ## Reorder response categories in descending order
+        ## Response categories in descending order
         ## TODO: Add a control
-        dfImport[[input$chart]] <-
-          with(dfImport,
-               dfImport[[input$chart]] <-
-                 factor(dfImport[[input$chart]],
-                        levels = names(sort(
-                          table(dfImport[[input$chart]]), decreasing = TRUE
-                        ))))
+        if (!is.ordered(dfImport[[input$chart]])) {
+          dfImport[[input$chart]] <-
+            with(dfImport,
+                 dfImport[[input$chart]] <-
+                   factor(dfImport[[input$chart]],
+                          levels = names(sort(
+                            table(dfImport[[input$chart]]), decreasing = TRUE
+                          ))))
+        }
         dfImport
       })
       
@@ -99,41 +100,56 @@ chartApp <- function(file)
           # ))
           
           ## Draw the chart
-          gg <- ggplot(plotDf, aes_string(input$chart)) +
-            geom_bar(aes_string(fill = input$chart), show.legend = FALSE) +
-            ggtitle(.createTitle(input$chart)) +
-            theme(plot.title = element_text(size = 20, face = "bold"),
-                  axis.title.x = element_blank(),
-                  axis.text.x = element_text(face = "bold"))
-          print(gg)
+          tryCatch({
+            gg <- ggplot(plotDf, aes_string(input$chart)) +
+              geom_bar(aes_string(fill = input$chart), show.legend = FALSE) +
+              ggtitle(.createTitle(input$chart)) +
+              theme(
+                plot.title = element_text(size = 20, face = "bold"),
+                axis.title.x = element_blank(),
+                axis.text.x = element_text(face = "bold")
+              )
+            print(gg)
+          },
+          error = function(e) e,
+          finally = print("Open-ended questions are not visualised"))    
         }
       })
       
       ## This code block is for displaying the data table
-      output$dataTable <- renderTable({
+      output$dataTable <- renderDataTable({
         if (input$displayType == "dataTable") {
-          tableDf <- dataInput()
-          colnames(tableDf) <-
-            c(
-              "facility",
-              "date",
-              "lga",
-              "state",
-              "zone",
-              "staff.no",
-              "respondent",
-              "respondent.role",
-              "waste.type",
-              "cleaning.time",
-              "know.health.impact",
-              "toilet",
-              "power.source",
-              "gen.emission",
-              "gen.noise",
-              "other.noise",
-              "waste.sorting"
-            )
-          tableDf
+          structure(
+            dataInput(),
+            names =
+              c(
+                "who.cleans",
+                "when.cleans",
+                "freq.clean",
+                "how.dispose",
+                "who.evacuates",
+                "freq.evacuate",
+                "know.effects.dirt",
+                "what.effect.dirt",
+                "have.toilet",
+                "use.toilet",
+                "why.no.use.toilet",
+                "toilet.owner",
+                "toilet.manager",
+                "toilet.payment",
+                "where.eat",
+                "know.effects.work",
+                "what.effect.work",
+                "first.visit",
+                "changes.postvisit",
+                "visit.useful",
+                "visit.comments",
+                "waste.receptable",
+                "receptacle.source",
+                "waste.bin",
+                "officer.comments"
+              )
+          )
         }
       })
       

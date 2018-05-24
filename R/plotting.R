@@ -36,6 +36,49 @@ show_all_barcharts <- function(file = NULL, data = NULL)
 
 
 
+
+
+
+
+
+
+## Some intermediate processing of the data frame
+.prepareDataframe <- function(dat)
+{
+  stopifnot(inherits(dat, "data.frame"))
+  
+  ## Some categories should follow a certain order
+  dat$How.frequently.is.cleaning.done. <-
+    factor(
+      dat$How.frequently.is.cleaning.done.,
+      levels = c("Daily", "Twice daily"),
+      ordered = TRUE
+    )
+  
+  dat$How.often.is.waste.evacuated. <-
+    factor(
+      dat$How.often.is.waste.evacuated.,
+      levels = c(
+        "Twice a day",
+        "Daily",
+        "Twice a week",
+        "At least twice a week",
+        "not sure"
+      ),
+      ordered = TRUE
+    )
+  dat
+}
+
+
+
+
+
+
+
+
+
+
 ## Drafts the title from variable name
 #' @importFrom tools toTitleCase
 .createTitle <- function(name)
@@ -44,6 +87,14 @@ show_all_barcharts <- function(file = NULL, data = NULL)
     strsplit(name, split = "\\.")[[1]], collapse = " "
   )), "?")
 }
+
+
+
+
+
+
+
+
 
 
 
