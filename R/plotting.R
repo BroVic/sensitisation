@@ -15,7 +15,6 @@
 #' Responses to open-ended questions are filtered out from the analysis.
 #' 
 #' @import ggplot2
-#' @importFrom tools toTitleCase
 #' 
 #' @export
 show_all_barcharts <- function(file = NULL, data = NULL)
@@ -23,24 +22,37 @@ show_all_barcharts <- function(file = NULL, data = NULL)
   if (!is.null(file)) {
     data <- read.csv(file, stringsAsFactors = FALSE)
   } else if (!is.null(data)) {
-    data <- discard_comments(data)
+    data <- .discard_comments(data)
   } else stop("Both 'file' and 'data' were NULL.")
   gglist <- lapply(colnames(data), function(var) {
-    tit <- paste(strsplit(var, split = "\\.")[[1]], collapse = " ")
     ggplot(data, aes_string(var)) +
       geom_bar() +
-      ggtitle(toTitleCase(tit)) +
+      ggtitle(.createTitle(var)) +
       xlab("Response")
   })
   sapply(gglist, print)
 }
 
 
+
+
+## Drafts the title from variable name
+#' @importFrom tools toTitleCase
+.createTitle <- function(name)
+{
+  paste0(toTitleCase(paste(
+    strsplit(name, split = "\\.")[[1]], collapse = " "
+  )), "?")
+}
+
+
+
+
 ## Removes open-ended questions from the data frame
 #' @importFrom dplyr %>%
 #' @importFrom dplyr contains
 #' @importFrom dplyr select
-discard_comments <- function(df) 
+.discard_comments <- function(df) 
 {
   stopifnot(inherits(df, "data.frame"))
   df %>%
