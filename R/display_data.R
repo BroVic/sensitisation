@@ -15,7 +15,9 @@ display_data <- function(filename)
 {
   if (!endsWith(tolower(filename), ".csv"))
       stop("Expected a '.csv' file.")
-  runApp(chartApp(file = filename))
+  dat <- read.csv(filename, stringsAsFactors = TRUE)
+  dat <- .prepareDataframe(dat)
+  runApp(chartApp(dat))
 }
 
 
@@ -27,9 +29,8 @@ display_data <- function(filename)
 #' @import ggplot2
 #' @import shiny
 #' @importFrom utils read.csv
-chartApp <- function(file)
+chartApp <- function(dfImport)
 {
-  data <- read.csv(file, stringsAsFactors = FALSE)
   shinyApp(
     ui =
       fluidPage(
@@ -37,7 +38,6 @@ chartApp <- function(file)
         
         sidebarLayout(
           sidebarPanel(
-            
             radioButtons(
               "displayType",
               label = "Type of Display",
@@ -50,68 +50,109 @@ chartApp <- function(file)
               "input.displayType === 'barChart'",
               selectInput("chart",
                           label = "Question",
-                          choices = colnames(data))
+                          choices = colnames(dfImport))
             )
           ),
+          
           mainPanel(
-            conditionalPanel(
-              "input.displayType === 'barChart'",
-              plotOutput("barChart")),
+            conditionalPanel("input.displayType === 'barChart'",
+                             plotOutput("barChart")),
+            
             
             conditionalPanel(
               "input.displayType === 'dataTable'",
-              tableOutput("dataTable"))
+              dataTableOutput("dataTable")
             )
+          )
         )
       ),
     
-    server = function(input, output) {
-      
+    server = function(input, output, session) {
       dataInput <- reactive({
-        
-        if (input$displayType == "barChart") {
-          data <- discard_comments(data)
+        ## Response categories in descending order
+        ## TODO: Add a control
+        if (!is.ordered(dfImport[[input$chart]])) {
+          dfImport[[input$chart]] <-
+            with(dfImport,
+                 dfImport[[input$chart]] <-
+                   factor(dfImport[[input$chart]],
+                          levels = names(sort(
+                            table(dfImport[[input$chart]]), decreasing = TRUE
+                          ))))
         }
-        
-        data
+        dfImport
       })
       
+      ## This code block is for displaying the bar chart
       output$barChart <- renderPlot({
         if (input$displayType == "barChart") {
-          gg <- ggplot(dataInput()) +
-            aes_string(input$chart) +
-            geom_bar(aes_string(fill = input$chart)) +
-            theme(axis.text.x = element_blank())
-          print(gg)
+          
+          ## Remove responses that are only comments
+          ## since they are not categorical variables
+          plotDf <- .discard_comments(dataInput())
+          
+          ## Update the select input widget
+          # observe(updateSelectInput(
+          #   session,
+          #   "chart",
+          #   label = "Question",
+          #   choices = colnames(plotDf)
+          # ))
+          
+          ## Draw the chart
+          tryCatch({
+            gg <- ggplot(plotDf, aes_string(input$chart)) +
+              geom_bar(aes_string(fill = input$chart), show.legend = FALSE) +
+              ggtitle(.createTitle(input$chart)) +
+              theme(
+                plot.title = element_text(size = 20, face = "bold"),
+                axis.title.x = element_blank(),
+                axis.text.x = element_text(face = "bold")
+              )
+            print(gg)
+          },
+          error = function(e) e,
+          finally = print("Open-ended questions are not visualised"))    
         }
       })
       
-      output$dataTable <- renderTable({
+      ## This code block is for displaying the data table
+      output$dataTable <- renderDataTable({
         if (input$displayType == "dataTable") {
-          df <- dataInput()
-          colnames(df) <-
-            c(
-            "facility",
-            "date",
-            "lga",
-            "state",
-            "zone",
-            "staff.no",
-            "respondent",
-            "respondent.role",
-            "waste.type",
-            "cleaning.time",
-            "know.health.impact",
-            "toilet",
-            "power.source",
-            "gen.emission",
-            "gen.noise",
-            "other.noise",
-            "waste.sorting"
+          structure(
+            dataInput(),
+            names =
+              c(
+                "who.cleans",
+                "when.cleans",
+                "freq.clean",
+                "how.dispose",
+                "who.evacuates",
+                "freq.evacuate",
+                "know.effects.dirt",
+                "what.effect.dirt",
+                "have.toilet",
+                "use.toilet",
+                "why.no.use.toilet",
+                "toilet.owner",
+                "toilet.manager",
+                "toilet.payment",
+                "where.eat",
+                "know.effects.work",
+                "what.effect.work",
+                "first.visit",
+                "changes.postvisit",
+                "visit.useful",
+                "visit.comments",
+                "waste.receptable",
+                "receptacle.source",
+                "waste.bin",
+                "officer.comments"
+              )
           )
-          df
         }
       })
+      
     }
   )
 }
