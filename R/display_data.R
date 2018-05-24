@@ -88,7 +88,7 @@ chartApp <- function(file)
           
           ## Remove responses that are only comments
           ## since they are not categorical variables
-          plotDf <- discard_comments(dataInput())
+          plotDf <- .discard_comments(dataInput())
           
           ## Update the select input widget
           # observe(updateSelectInput(
@@ -98,11 +98,13 @@ chartApp <- function(file)
           #   choices = colnames(plotDf)
           # ))
           
-          
-          
           ## Draw the chart
           gg <- ggplot(plotDf, aes_string(input$chart)) +
-            geom_bar()
+            geom_bar(aes_string(fill = input$chart), show.legend = FALSE) +
+            ggtitle(.createTitle(input$chart)) +
+            theme(plot.title = element_text(size = 20, face = "bold"),
+                  axis.title.x = element_blank(),
+                  axis.text.x = element_text(face = "bold"))
           print(gg)
         }
       })
