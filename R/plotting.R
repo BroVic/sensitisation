@@ -109,3 +109,34 @@ show_all_barcharts <- function(file = NULL, data = NULL)
   df %>%
     select(-contains("comments"))
 }
+
+
+
+
+
+
+
+
+## Creates the Shiny App's bar chart
+#' @import ggplot2
+drawBarChart <- function(df, var)
+{
+  stopifnot(is.character(var))
+  tryCatch({
+    gg <- ggplot(df, aes_string(var)) +
+      geom_bar(aes_string(fill = var), show.legend = FALSE) +
+      ggtitle(.createTitle(var)) +
+      theme(
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(face = "bold")
+      )
+    # print(gg)
+    if (interactive()) {
+      print(gg)
+    }
+    else
+      message("Object of class '%s' successfully created", class(gg))
+  },
+  error = "Plotting error")
+}

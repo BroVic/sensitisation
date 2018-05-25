@@ -9,6 +9,7 @@
 #' @param filename A comma-separated values (CSV) file containing the data.
 #' 
 #' @importFrom shiny runApp
+#' @importFrom utils read.csv
 #' 
 #' @export
 display_data <- function(filename)
@@ -26,9 +27,8 @@ display_data <- function(filename)
 
 
 
-#' @import ggplot2
+
 #' @import shiny
-#' @importFrom utils read.csv
 chartApp <- function(dfImport)
 {
   shinyApp(
@@ -99,20 +99,7 @@ chartApp <- function(dfImport)
           #   choices = colnames(plotDf)
           # ))
           
-          ## Draw the chart
-          tryCatch({
-            gg <- ggplot(plotDf, aes_string(input$chart)) +
-              geom_bar(aes_string(fill = input$chart), show.legend = FALSE) +
-              ggtitle(.createTitle(input$chart)) +
-              theme(
-                plot.title = element_text(size = 20, face = "bold"),
-                axis.title.x = element_blank(),
-                axis.text.x = element_text(face = "bold")
-              )
-            print(gg)
-          },
-          error = function(e) e,
-          finally = print("Open-ended questions are not visualised"))    
+          drawBarChart(plotDf, input$chart)
         }
       })
       
