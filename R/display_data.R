@@ -18,7 +18,16 @@ display_data <- function(filename)
       stop("Expected a '.csv' file.")
   dat <- read.csv(filename, stringsAsFactors = TRUE)
   dat <- .prepareDataframe(dat)
-  runApp(chartApp(dat))
+  
+  ## Decide on the browser 
+  if (interactive()) {
+    brows.typ <- getOption("shiny.launch.browser", interactive())
+  }
+  else {
+    brows.typ <- !interactive()
+  }
+  
+  runApp(chartApp(dat), launch.browser = brows.typ)
 }
 
 
