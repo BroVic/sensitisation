@@ -8,16 +8,27 @@
 #' 
 #' @param filename A comma-separated values (CSV) file containing the data.
 #' 
+#' @importFrom RSQLite dbConnect
+#' @importFrom RSQLite dbDisconnect
+#' @importFrom RSQLite dbReadTable
+#' @importFrom RSQLite SQLite
 #' @importFrom shiny runApp
 #' @importFrom utils read.csv
 #' 
 #' @export
 display_data <- function(filename)
 {
-  if (!endsWith(tolower(filename), ".csv"))
-      stop("Expected a '.csv' file.")
-  dat <- read.csv(filename, stringsAsFactors = TRUE)
-  dat <- .prepareDataframe(dat)
+  if (!grepl("\\.(csv$|db$|sqlite$)", filename, ignore.case = TRUE))
+      stop("Expected a CSV or SQLite file.")
+  if (endsWith(tolower(filename), '.csv')) {
+    dat <- read.csv(filename, stringsAsFactors = TRUE)
+    dat <- .prepareDataframe(dat)
+  }
+  else {
+    dbCon <- dbConnect(SQLite(), filename)
+    dat <- dbReadTable(dbCon, 'ques_input')
+    on.exit(dbDisconnect(dbCon))
+  }
   
   ## Decide on the browser 
   if (interactive()) {
