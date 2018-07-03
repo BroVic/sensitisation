@@ -23,18 +23,25 @@ tdf <-
 
 tdf <- .prepareDataframe(tdf)
 
+## Also create a matrix for testing some error checks
+testMatrix <- matrix(1:4, nrow = 2)
+
 ## Tests proper
 # ============================
 context("Interactive display")
 
 test_that("Improper data input is detected", {
+  expect_error(chartApp())
+  expect_error(chartApp(testMatrix))
+  
   expect_error(display_data())
   expect_error(display_data(42))
   expect_error(display_data(TRUE))
-  expect_error(display_data("random string"))
-  expect_error(display_data("fakefile.fake"))
-  expect_error(display_data("close-to-actual.csb"))
-  expect_error(display_data("genuine-but-nonexistent.xlsx"))
+  
+  expect_error(readData("random string"))
+  expect_error(readData("fakefile.fake"))
+  expect_error(readData("close-to-actual.csb"))
+  expect_error(readData("genuine-but-nonexistent.xlsx"))
 })
 
 test_that('imported data has the correct structure', {
@@ -55,6 +62,12 @@ test_that("open ended questions are filtered out", {
 test_that("ggplotObj can be created", {
   expect_error(drawBarChart(tdf, 999))
   expect_output(drawBarChart(tdf, colnames(tdf)[1]))
+})
+
+test_that("Multiple plots are printed via graphics device", {
+  expect_error(show_all_barcharts(42))
+  expect_error(show_all_barcharts())
+  expect_error(show_all_barcharts(data = testMatrix))
 })
 # ---
 
