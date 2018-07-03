@@ -7,7 +7,7 @@
 show_all_barcharts(file = NULL, data = NULL)
 }
 \arguments{
-\item{file}{A path to text file containing data in CSV format}
+\item{file}{A path to text file containing data in CSV or SQLite format}
 
 \item{data}{A R object of class \code{data.frame} containing questionnaire 
 data}
