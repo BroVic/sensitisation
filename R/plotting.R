@@ -2,7 +2,7 @@
 
 #' Display the categorical data using bar charts
 #' 
-#' @param file A path to text file containing data in CSV format
+#' @param file A path to text file containing data in CSV or SQLite format
 #' @param data A R object of class \code{data.frame} containing questionnaire 
 #' data
 #' 
@@ -20,10 +20,18 @@
 show_all_barcharts <- function(file = NULL, data = NULL)
 {
   if (!is.null(file)) {
-    data <- read.csv(file, stringsAsFactors = FALSE)
-  } else if (!is.null(data)) {
-    data <- .discard_comments(data)
-  } else stop("Both 'file' and 'data' were NULL.")
+    stopifnot(is.character(file))
+    data <- readData(file)
+  }
+  else if (!is.null(data)) {
+    if (inherits(data, "data.frame"))
+      data <- .discard_comments(data)
+    else
+      stop("'data' is not an object of class 'data.frame'")
+  }
+  else stop("Both 'file' and 'data' were NULL.")
+  
+  ## Create a list of ggplotObjs
   gglist <- lapply(colnames(data), function(var) {
     ggplot(data, aes_string(var)) +
       geom_bar() +
