@@ -4,16 +4,16 @@
 set.seed(123)
 tdf <-
   data.frame(
-    How.frequently.is.cleaning.done. = factor(sample(c(
-      "Daily", "Twice daily"
+    when.cleans = factor(sample(c(
+      "Morning Only", "Afternoon", "Morning and Evening"
     ), 260, replace = TRUE)),
-    How.often.is.waste.evacuated. = factor(sample(
+    freq.evacuates = factor(sample(
       c(
-        "Twice a day",
         "Daily",
-        "Twice a week",
         "At least twice a week",
-        "not sure"
+        "Weekly",
+        "Fortnightly",
+        "Not sure"
       ),
       260,
       replace = TRUE
@@ -68,6 +68,17 @@ test_that("Multiple plots are printed via graphics device", {
   expect_error(show_all_barcharts(42))
   expect_error(show_all_barcharts())
   expect_error(show_all_barcharts(data = testMatrix))
+})
+
+test_that('bars can be sorted', {
+  val <- setBarCatOrder(tdf, 'when.cleans')
+  
+  expect_error(setBarCatOrder())
+  expect_error(setBarCatOrder(42))
+  expect_error(setBarCatOrder(42, 999))
+  expect_is(val, 'factor')
+  expect_type(val, 'integer')
+
 })
 # ---
 
