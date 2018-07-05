@@ -26,7 +26,11 @@ chartApp <- function(dfImport)
               "input.displayType === 'barChart'",
               selectInput("chart",
                           label = "Question",
-                          choices = colnames(dfImport))
+                          choices = colnames(dfImport)),
+              
+              checkboxInput('sortOpt',
+                            label = 'Sort in descending order',
+                            value = FALSE)
             )
           ),
           
@@ -42,22 +46,9 @@ chartApp <- function(dfImport)
       ),
     
     server = function(input, output, session) {
-      dataInput <- reactive({
-        ## Response categories in descending order
-        ## TODO: Add a control
-        if (!is.ordered(dfImport[[input$chart]])) {
-          dfImport[[input$chart]] <-
-            with(dfImport,
-                 dfImport[[input$chart]] <-
-                   factor(dfImport[[input$chart]],
-                          levels = names(sort(
-                            table(dfImport[[input$chart]]), decreasing = TRUE
-                          ))))
-        }
-        dfImport
-      })
+      dataInput <- reactive(dfImport)
       
-      ## This code block is for displaying the bar chart
+      ## The bar chart
       output$barChart <- renderPlot({
         if (input$displayType == "barChart") {
           
@@ -73,10 +64,11 @@ chartApp <- function(dfImport)
           #   choices = colnames(plotDf)
           # ))
           
-          drawBarChart(plotDf, input$chart)
+          drawBarChart(plotDf, input$chart, sorted = input$sortOpt)
         }
       })
       
+      ## The data table
       output$dataTable <- renderDataTable({
         if (input$displayType == "dataTable") {
           dTable <- dataInput()

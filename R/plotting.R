@@ -56,22 +56,21 @@ show_all_barcharts <- function(file = NULL, data = NULL)
   stopifnot(inherits(dat, "data.frame"))
   
   ## Some categories should follow a certain order
-  dat$How.frequently.is.cleaning.done. <-
+  dat$when.cleans <-
     factor(
-      dat$How.frequently.is.cleaning.done.,
-      levels = c("Daily", "Twice daily"),
+      dat$when,
+      levels = c("Morning Only", "Afternoon", "Morning and Evening"),
       ordered = TRUE
     )
   
-  dat$How.often.is.waste.evacuated. <-
+  dat$freq.evacuates <-
     factor(
-      dat$How.often.is.waste.evacuated.,
+      dat$freq.evacuates,
       levels = c(
         "Twice a day",
         "Daily",
-        "Twice a week",
         "At least twice a week",
-        "not sure"
+        "Not sure"
       ),
       ordered = TRUE
     )
@@ -129,17 +128,21 @@ show_all_barcharts <- function(file = NULL, data = NULL)
 ## @param df A data frame containing the questionnaire data
 ## @param var A column from \code{df} for which a plot is generated 
 #' @import ggplot2
-drawBarChart <- function(df, var)
+drawBarChart <- function(df, var, sorted = FALSE)
 {
   stopifnot(is.character(var))
+  
+  ## Change the order of categories
+  if (sorted) 
+    df[[var]] <- setBarCatOrder(df, var)
+  
   tryCatch({
     gg <- ggplot(df, aes_string(var)) +
       geom_bar(aes_string(fill = var), show.legend = FALSE) +
       ggtitle(.createTitle(var)) +
-      theme(
-        plot.title = element_text(size = 20, face = "bold"),
-        axis.title.x = element_blank(),
-        axis.text.x = element_text(face = "bold")
+      theme(plot.title = element_text(size = 20, face = "bold"),
+            axis.title.x = element_blank(),
+            axis.text.x = element_text(face = "bold")
       )
     print(gg)
   },
@@ -148,4 +151,27 @@ drawBarChart <- function(df, var)
     stop(c)
   },
   finally = print("Plot was not generated for this question"))
+}
+
+
+
+
+
+## Sets the order of the categories for display
+## @param x A data frame
+## @param var A character column in 'x'
+#' @importFrom dplyr %>%
+#' @importFrom dplyr select
+#' @importFrom forcats as_factor
+#' @importFrom forcats fct_infreq
+setBarCatOrder <- function(x, col)
+{
+  stopifnot(is.data.frame(x))
+  stopifnot(is.character(col))
+  
+  x %>% 
+    select(col) %>% 
+    unlist(use.names = FALSE) %>% 
+    as_factor() %>% 
+    fct_infreq()
 }
