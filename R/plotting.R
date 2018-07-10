@@ -128,16 +128,19 @@ show_all_barcharts <- function(file = NULL, data = NULL)
 ## @param df A data frame containing the questionnaire data
 ## @param var A column from \code{df} for which a plot is generated 
 #' @import ggplot2
+#' @importFrom tidyr drop_na
 drawBarChart <- function(df, var, sorted = FALSE)
 {
   stopifnot(is.character(var))
-  
+    
   ## Change the order of categories
   if (sorted) 
-    df[[var]] <- setBarCatOrder(df, var)
+    df[[var]] <- setBarCategoryOrder(df, var)
   
   tryCatch({
-    gg <- ggplot(df, aes_string(var)) +
+    gg <- df %>% 
+      drop_na(var) %>% 
+      ggplot(aes_string(var)) +
       geom_bar(aes_string(fill = var), show.legend = FALSE) +
       ggtitle(.createTitle(var)) +
       theme(plot.title = element_text(size = 20, face = "bold"),
@@ -164,7 +167,7 @@ drawBarChart <- function(df, var, sorted = FALSE)
 #' @importFrom dplyr select
 #' @importFrom forcats as_factor
 #' @importFrom forcats fct_infreq
-setBarCatOrder <- function(x, col)
+setBarCategoryOrder <- function(x, col)
 {
   stopifnot(is.data.frame(x))
   stopifnot(is.character(col))
