@@ -68,8 +68,10 @@ test_that("Improper data input is detected", {
 context("Bar Chart Plotting")
 
 test_that("open ended questions are filtered out", {
-  expect_error(discard_comments(matrix(1:12)))
-  expect_error(discard_comments(list(a = 1:10, b = LETTERS[1:10])))
+  msg <- 'must be an object of class \'data.frame\''
+  
+  expect_error(discardComments(matrix(1:12)), msg)
+  expect_error(discardComments(list(a = 1:10, b = LETTERS[1:10])), msg)
 })
 
 test_that("ggplotObj can be created", {
