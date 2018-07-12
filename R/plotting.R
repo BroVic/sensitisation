@@ -25,7 +25,7 @@ show_all_barcharts <- function(file = NULL, data = NULL)
   }
   else if (!is.null(data)) {
     if (inherits(data, "data.frame")) {
-      remColnames <- discardComments(data)
+      remColnames <- keepOnlyFactors(data)
       data <- data[, remColnames]
     }
     else
@@ -108,12 +108,12 @@ show_all_barcharts <- function(file = NULL, data = NULL)
 #' @importFrom dplyr %>%
 #' @importFrom dplyr contains
 #' @importFrom dplyr select
-discardComments <- function(df) 
+keepOnlyFactors <- function(df) 
 {
   if (!inherits(df, "data.frame"))
     stop('\'df\' must be an object of class \'data.frame\'')
-  openEndedCols <- sapply(df, FUN = inherits, 'character')
-  colnames(df)[!openEndedCols]    # Note negation
+  factorCols <- sapply(df, FUN = inherits, 'factor')
+  colnames(df)[factorCols]    # Note negation
 }
 
 

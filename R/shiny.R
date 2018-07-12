@@ -54,7 +54,7 @@ chartApp <- function(dfImport)
           
           ## Remove responses that are only comments
           ## since they are not categorical variables
-          sansOpenEnded <- discardComments(dataInput())
+          sansOpenEnded <- keepOnlyFactors(dataInput())
           updateSelectInput(session,
                             "chart",
                             label = "Question",
