@@ -70,8 +70,8 @@ context("Bar Chart Plotting")
 test_that("open ended questions are filtered out", {
   msg <- 'must be an object of class \'data.frame\''
   
-  expect_error(discardComments(matrix(1:12)), msg)
-  expect_error(discardComments(list(a = 1:10, b = LETTERS[1:10])), msg)
+  expect_error(keepOnlyFactors(matrix(1:12)), msg)
+  expect_error(keepOnlyFactors(list(a = 1:10, b = LETTERS[1:10])), msg)
 })
 
 test_that("ggplotObj can be created", {
