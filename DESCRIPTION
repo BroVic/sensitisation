@@ -1,11 +1,10 @@
 Package: sensitisation
-Title: Analysis of Data from NESREA Sensitisation and Awareness Creation Activity
-Version: 0.0.3
+Title: Analysis of NESREA Environmental Awareness Data
+Version: 0.0.4
 Authors@R: person("Victor", "Ordu", email = "victor.ordu@nesrea.gov.ng", 
     role = c("aut", "cre"))
-Description: This package contains function for exploring questionnaire data from 
-    field activities conducted for the purpose of public sensitisation and 
-    awareness creation on environmental issues.
+Description: This package contains functions for exploring data collected
+     during NESREA public sensitisation and awareness creation activities.
 Depends:
     R (>= 3.4),
     utils (>= 3.4.3)
