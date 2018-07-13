@@ -24,21 +24,17 @@ show_all_barcharts <- function(file = NULL, data = NULL)
     data <- readData(file)
   }
   else if (!is.null(data)) {
-    if (inherits(data, "data.frame"))
-      data <- .discard_comments(data)
+    if (inherits(data, "data.frame")) {
+      remColnames <- keepOnlyFactors(data)
+      data <- data[, remColnames]
+    }
     else
       stop("'data' is not an object of class 'data.frame'")
   }
-  else stop("Both 'file' and 'data' were NULL.")
+  else
+    stop("Both 'file' and 'data' were NULL")
   
-  ## Create a list of ggplotObjs
-  gglist <- lapply(colnames(data), function(var) {
-    ggplot(data, aes_string(var)) +
-      geom_bar() +
-      ggtitle(.createTitle(var)) +
-      xlab("Response")
-  })
-  sapply(gglist, print)
+  lapply(colnames(data), function(x) drawBarChart(data, x))
 }
 
 
@@ -106,15 +102,18 @@ show_all_barcharts <- function(file = NULL, data = NULL)
 
 
 
-## Removes open-ended questions from the data frame
+## Removes open-ended questions from column names
+## This will be used to update the selectInput widget
+## so that these questions are not presented as input
 #' @importFrom dplyr %>%
 #' @importFrom dplyr contains
 #' @importFrom dplyr select
-.discard_comments <- function(df) 
+keepOnlyFactors <- function(df) 
 {
-  stopifnot(inherits(df, "data.frame"))
-  df %>%
-    select(-contains("comments"))
+  if (!inherits(df, "data.frame"))
+    stop('\'df\' must be an object of class \'data.frame\'')
+  factorCols <- sapply(df, FUN = inherits, 'factor')
+  colnames(df)[factorCols]    # Note negation
 }
 
 

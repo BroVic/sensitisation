@@ -48,32 +48,28 @@ chartApp <- function(dfImport)
     server = function(input, output, session) {
       dataInput <- reactive(dfImport)
       
-      ## The bar chart
-      output$barChart <- renderPlot({
+      ## Update the select input widget
+      observe({
         if (input$displayType == "barChart") {
           
           ## Remove responses that are only comments
           ## since they are not categorical variables
-          plotDf <- .discard_comments(dataInput())
-          
-          ## Update the select input widget
-          # observe(updateSelectInput(
-          #   session,
-          #   "chart",
-          #   label = "Question",
-          #   choices = colnames(plotDf)
-          # ))
-          
-          drawBarChart(plotDf, input$chart, sorted = input$sortOpt)
+          sansOpenEnded <- keepOnlyFactors(dataInput())
+          updateSelectInput(session,
+                            "chart",
+                            label = "Question",
+                            choices = sansOpenEnded)
         }
       })
       
+      ## The bar chart
+      output$barChart <-
+        renderPlot(drawBarChart(dataInput(), input$chart, sorted = input$sortOpt))
+      
       ## The data table
       output$dataTable <- renderDataTable({
-        if (input$displayType == "dataTable") {
-          dTable <- dataInput()
-          structure(dTable, names = colnames(dTable))
-        }
+        dTable <- dataInput()
+        structure(dTable, names = colnames(dTable))
       })
       
     }
